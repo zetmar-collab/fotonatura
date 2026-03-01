@@ -86,6 +86,7 @@ function tip(text) {
   doc.rect(60, y, W, 40).fill('#fff8f0');
   doc.rect(60, y, 3, 40).fill(COL);
   ital(11).text(`💡  ${text}`, 72, y + 8, { width: W - 20 });
+  doc.x = 60;
   doc.moveDown(1.0);
 }
 
@@ -97,6 +98,7 @@ function tableRow(cells, bold_ = false) {
     x += colW[i];
   });
   doc.y = yStart + 22;
+  doc.x = 60;
   doc.moveTo(60, doc.y).lineTo(60 + W, doc.y).strokeColor('#e8d5c0').lineWidth(0.5).stroke();
 }
 
@@ -171,11 +173,23 @@ toc.forEach(([num, title, page]) => {
   const isSection = num.startsWith(' ');
   const font = isSection ? FONT_R : FONT_B;
   const size = isSection ? 11 : 12;
-  doc.font(font).fontSize(size).fillColor(isSection ? MUTED : DARK)
-    .text(num, 65, doc.y, { continued: true, width: 40 })
-    .text(title, { continued: true, width: W - 80 })
-    .text(page, { width: 30, align: 'right' });
-  doc.moveDown(0.25);
+  const color = isSection ? MUTED : DARK;
+  const indent = isSection ? 20 : 0;
+  const startY = doc.y;
+
+  doc.font(font).fontSize(size).fillColor(color)
+    .text(num.trim(), 65 + indent, startY, { width: 28, lineBreak: false });
+
+  doc.font(font).fontSize(size).fillColor(color)
+    .text(title, 95 + indent, startY, { width: W - 70 - indent });
+  const afterTitle = doc.y;
+
+  doc.font(FONT_R).fontSize(size).fillColor(color)
+    .text(page, 60 + W - 30, startY, { width: 30, align: 'right', lineBreak: false });
+
+  doc.x = 60;
+  doc.y = afterTitle;
+  doc.moveDown(0.15);
 });
 
 // ── ROZDZIAŁ 1 ─────────────────────────────────────────────────────────────
@@ -231,6 +245,7 @@ doc.font(FONT_R).fontSize(10).fillColor('#2c1e12')
   .fillColor('#333')
   .text('  chmod +x FotoNatura-1.0.0.AppImage\n  ./FotoNatura-1.0.0.AppImage', 68, doc.y + 6, { lineGap: 2 });
 doc.y += 36;
+doc.x = 60;
 bullet(['Plik można też uruchomić dwukrotnym kliknięciem (jeśli dystrybucja obsługuje AppImage).']);
 
 doc.moveDown(0.5);
@@ -239,6 +254,7 @@ doc.moveDown(0.2);
 doc.rect(60, doc.y, W, 18).fill('#f0f0f0').fillColor('#333')
   .text('  sudo dpkg -i fotonatura_1.0.0_amd64.deb', 68, doc.y + 4);
 doc.y += 26;
+doc.x = 60;
 
 doc.moveDown(0.4);
 tip('Aby obsłużyć zdjęcia RAW na Linuksie: sudo apt install dcraw');
@@ -355,6 +371,7 @@ lvlRows.forEach(r => {
       .text(r[i], x + 4, sy, { width: (i === 2 ? W - 165 : 75) - 8 });
   });
   doc.y += 46;
+  doc.x = 60;
 });
 
 doc.moveDown(0.4);
