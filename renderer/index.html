@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FotoNatura</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="logo">
+      <span class="logo-icon">🌿</span>
+      <span class="logo-text">FotoNatura</span>
+    </div>
+    <div class="header-right">
+      <div class="status-bar" id="statusBar">Witaj! Wczytaj zdjęcie, aby rozpocząć.</div>
+      <button class="theme-btn" id="themeToggle" title="Zmień motyw">
+        <span id="themeIcon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <aside class="sidebar">
+
+      <section class="section">
+        <h2 class="section-title">1. Wczytaj zdjęcie</h2>
+        <button class="btn btn-primary btn-full" id="btnOpen">
+          <span class="btn-icon">📂</span> Otwórz zdjęcie
+        </button>
+        <button class="btn btn-close btn-full mt-sm" id="btnClose" style="display:none;">
+          <span class="btn-icon">✕</span> Zamknij bez zapisywania
+        </button>
+        <p class="hint">lub przeciągnij i upuść zdjęcie na obszar podglądu</p>
+      </section>
+
+      <!-- Ulubione ustawienia retuszu -->
+      <section class="section" id="presetsSection" style="display:none;">
+        <h2 class="section-title">⭐ Moje ustawienia</h2>
+        <div id="presetsList" class="presets-list"></div>
+        <div class="preset-save-row">
+          <input type="text" id="presetNameInput" class="text-input preset-name-input"
+                 placeholder="Nazwa ustawienia…" maxlength="22" />
+          <button class="btn btn-outline btn-sm" id="btnSavePreset" title="Zapisz bieżące ustawienia">💾</button>
+        </div>
+      </section>
+
+      <section class="section" id="controlsSection" style="display:none;">
+
+        <button class="btn btn-auto btn-full" id="btnAutoCorrect">
+          <span class="btn-icon">✨</span> Auto korekta
+        </button>
+
+        <h2 class="section-title mt">2. Styl retuszu</h2>
+        <div class="profile-grid">
+          <button class="profile-btn active" data-profile="natural">
+            <span class="profile-icon">🌿</span>
+            <span class="profile-label">Naturalny</span>
+          </button>
+          <button class="profile-btn" data-profile="warm">
+            <span class="profile-icon">🌅</span>
+            <span class="profile-label">Ciepły</span>
+          </button>
+          <button class="profile-btn" data-profile="vivid">
+            <span class="profile-icon">🌈</span>
+            <span class="profile-label">Żywe kolory</span>
+          </button>
+          <button class="profile-btn" data-profile="bw">
+            <span class="profile-icon">⬛</span>
+            <span class="profile-label">Czarno-białe</span>
+          </button>
+          <button class="profile-btn" data-profile="sepia">
+            <span class="profile-icon">🟤</span>
+            <span class="profile-label">Sepia</span>
+          </button>
+          <button class="profile-btn" data-profile="hdr">
+            <span class="profile-icon">⚡</span>
+            <span class="profile-label">HDR</span>
+          </button>
+        </div>
+
+        <h2 class="section-title mt">Intensywność retuszu</h2>
+        <div class="slider-row">
+          <span class="slider-label">Delikatnie</span>
+          <input type="range" id="intensitySlider" min="0" max="100" value="65" class="slider" />
+          <span class="slider-label">Mocno</span>
+        </div>
+        <div class="slider-value-row"><span id="intensityValue">65</span>%</div>
+
+        <h2 class="section-title mt">Jasność / ciemność</h2>
+        <div class="slider-row">
+          <span class="slider-label">Ciemniej</span>
+          <input type="range" id="brightnessSlider" min="-100" max="100" value="0" class="slider" />
+          <span class="slider-label">Jaśniej</span>
+        </div>
+        <div class="slider-value-row"><span id="brightnessValue">0</span></div>
+
+        <h2 class="section-title mt">🎚️ Poziomy</h2>
+        <div class="levels-group">
+          <canvas id="histogramCanvas" class="histogram-canvas" width="256" height="68"></canvas>
+          <div class="levels-row">
+            <span class="levels-label">Cienie</span>
+            <input type="range" id="levelsBlack" min="0" max="254" value="0" class="slider levels-slider" />
+            <span class="levels-val" id="levelsBlackVal">0</span>
+          </div>
+          <div class="levels-row">
+            <span class="levels-label">Światła</span>
+            <input type="range" id="levelsWhite" min="1" max="255" value="255" class="slider levels-slider" />
+            <span class="levels-val" id="levelsWhiteVal">255</span>
+          </div>
+          <div class="levels-row">
+            <span class="levels-label">Półcienie</span>
+            <input type="range" id="levelsGamma" min="-100" max="100" value="0" class="slider levels-slider" />
+            <span class="levels-val" id="levelsGammaVal">0</span>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-full mt-sm" id="btnResetLevels">↺ Zeruj poziomy</button>
+        </div>
+
+        <div class="crop-toggle-row">
+          <button class="btn btn-outline btn-full" id="btnCrop">
+            <span class="btn-icon">✂️</span> Kadruj zdjęcie
+          </button>
+          <button class="btn btn-ghost btn-full mt-sm" id="btnUndoCrop" style="display:none;">
+            <span class="btn-icon">↩️</span> Cofnij kadrowanie
+          </button>
+        </div>
+
+        <div class="compare-toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="compareToggle" />
+            <span class="toggle-switch"></span>
+            Porównaj przed / po
+          </label>
+        </div>
+
+      </section>
+
+      <!-- Sekcja tekstu -->
+      <section class="section" id="textSection" style="display:none;">
+        <h2 class="section-title">✍️ Podpis na zdjęciu</h2>
+
+        <div class="form-group">
+          <label class="form-label">Tekst podpisu</label>
+          <input type="text" id="textInput" class="text-input" placeholder="np. Wakacje 2024" maxlength="80" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Czcionka</label>
+          <div class="font-grid">
+            <button class="font-btn active" data-font="Segoe UI" style="font-family:'Segoe UI',Tahoma,sans-serif">
+              <span class="font-preview">Aa</span><span class="font-name">Segoe UI</span>
+            </button>
+            <button class="font-btn" data-font="Georgia" style="font-family:Georgia,serif">
+              <span class="font-preview">Aa</span><span class="font-name">Georgia</span>
+            </button>
+            <button class="font-btn" data-font="Verdana" style="font-family:Verdana,sans-serif">
+              <span class="font-preview">Aa</span><span class="font-name">Verdana</span>
+            </button>
+            <button class="font-btn" data-font="Arial" style="font-family:Arial,sans-serif">
+              <span class="font-preview">Aa</span><span class="font-name">Arial</span>
+            </button>
+            <button class="font-btn" data-font="Courier New" style="font-family:'Courier New',monospace">
+              <span class="font-preview">Aa</span><span class="font-name">Courier</span>
+            </button>
+            <button class="font-btn" data-font="Impact" style="font-family:Impact,sans-serif">
+              <span class="font-preview">Aa</span><span class="font-name">Impact</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Rozmiar</label>
+          <div class="size-btns">
+            <button class="size-btn" data-size="24">Mały</button>
+            <button class="size-btn active" data-size="36">Średni</button>
+            <button class="size-btn" data-size="52">Duży</button>
+            <button class="size-btn" data-size="72">Bardzo duży</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kolor</label>
+          <div class="color-btns">
+            <button class="color-btn active" data-color="#ffffff" style="background:#fff; border-color:#aaa;" title="Biały"></button>
+            <button class="color-btn" data-color="#000000" style="background:#000;" title="Czarny"></button>
+            <button class="color-btn" data-color="#ffe066" style="background:#ffe066;" title="Żółty"></button>
+            <button class="color-btn" data-color="#ff4444" style="background:#ff4444;" title="Czerwony"></button>
+            <button class="color-btn" data-color="#44ccff" style="background:#44ccff;" title="Niebieski"></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Szybka pozycja</label>
+          <div class="position-grid">
+            <button class="pos-btn" data-pos="top-left"    title="Góra lewo">↖</button>
+            <button class="pos-btn" data-pos="top-center"  title="Góra środek">↑</button>
+            <button class="pos-btn" data-pos="top-right"   title="Góra prawo">↗</button>
+            <button class="pos-btn" data-pos="mid-left"    title="Środek lewo">←</button>
+            <button class="pos-btn" data-pos="mid-center"  title="Środek">⊙</button>
+            <button class="pos-btn" data-pos="mid-right"   title="Środek prawo">→</button>
+            <button class="pos-btn" data-pos="bot-left"    title="Dół lewo">↙</button>
+            <button class="pos-btn active" data-pos="bot-center" title="Dół środek">↓</button>
+            <button class="pos-btn" data-pos="bot-right"   title="Dół prawo">↘</button>
+          </div>
+          <p class="drag-hint">💡 Przeciągnij tekst myszką na zdjęciu — uchwyć ramkę lub narożnik rozmiaru</p>
+        </div>
+
+        <button class="btn btn-ghost btn-full" id="btnClearText">
+          <span class="btn-icon">🗑️</span> Usuń podpis
+        </button>
+      </section>
+
+      <section class="section action-section" id="actionSection" style="display:none;">
+        <h2 class="section-title">3. Zapisz zdjęcie</h2>
+        <button class="btn btn-success btn-full" id="btnSave">
+          <span class="btn-icon">💾</span> Zapisz zdjęcie
+        </button>
+        <button class="btn btn-pdf btn-full mt-sm" id="btnSavePDF">
+          <span class="btn-icon">📄</span> Eksportuj do PDF
+        </button>
+        <button class="btn btn-ghost btn-full mt-sm" id="btnReset">
+          <span class="btn-icon">↩️</span> Cofnij wszystko
+        </button>
+      </section>
+
+      <div class="author-footer">
+        Autor aplikacji: <strong>Marek Zettel</strong>
+      </div>
+
+    </aside>
+
+    <!-- Prawa kolumna: podgląd -->
+    <section class="preview-area">
+
+      <div class="drop-zone" id="dropZone">
+
+        <div class="drop-hint" id="dropHint">
+          <div class="drop-icon">🖼️</div>
+          <div class="drop-text">Przeciągnij zdjęcie tutaj</div>
+          <div class="drop-subtext">lub użyj przycisku „Otwórz zdjęcie"</div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvasWrapper" style="display:none;">
+          <canvas id="canvasResult"></canvas>
+          <canvas id="canvasOriginal" style="display:none;"></canvas>
+          <!-- Overlay: tekst-drag + kadrowanie -->
+          <canvas id="canvasOverlay"></canvas>
+          <div class="compare-line" id="compareLine" style="display:none;">
+            <div class="compare-label left">Oryginał</div>
+            <div class="compare-handle"></div>
+            <div class="compare-label right">Po retuszu</div>
+          </div>
+        </div>
+
+        <!-- Pasek kadru — pojawia się podczas kadrowania -->
+        <div class="crop-bar" id="cropBar" style="display:none;">
+          <span class="crop-info" id="cropInfo">Wybierz obszar kadru</span>
+          <button class="btn btn-success btn-sm" id="btnApplyCrop">✓ Zastosuj</button>
+          <button class="btn btn-ghost btn-sm" id="btnCancelCrop">✕ Anuluj</button>
+        </div>
+
+        <div class="processing-overlay" id="processingOverlay" style="display:none;">
+          <div class="processing-spinner"></div>
+          <div class="processing-text">Przetwarzanie...</div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="imageProcessor.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
