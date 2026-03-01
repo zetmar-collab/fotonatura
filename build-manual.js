@@ -47,7 +47,9 @@ function newPage() {
   doc.addPage();
   // Stopka
   doc.font(FONT_R).fontSize(10).fillColor(MUTED)
-    .text('FotoNatura — Instrukcja obsługi   |   Autor: Marek Zettel', 60, 790, { width: W, align: 'center' });
+    .text('FotoNatura — Instrukcja obsługi   |   Autor: Marek Zettel', 60, 770, { width: W, align: 'center' });
+  // Reset doc.y do górnego marginesu, żeby treść zaczynała od góry strony
+  doc.y = doc.page.margins.top;
 }
 
 function chapter(num, title) {
@@ -141,7 +143,7 @@ ital(11).fillColor(MUTED)
 
 // Stopka strony tytułowej
 doc.font(FONT_R).fontSize(10).fillColor(MUTED)
-  .text('FotoNatura — Instrukcja obsługi   |   Autor: Marek Zettel', 60, 790, { width: W, align: 'center' });
+  .text('FotoNatura — Instrukcja obsługi   |   Autor: Marek Zettel', 60, 770, { width: W, align: 'center' });
 
 // ── SPIS TREŚCI ───────────────────────────────────────────────────────────────
 
